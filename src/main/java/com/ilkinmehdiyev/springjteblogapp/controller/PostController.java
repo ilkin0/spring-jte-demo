@@ -10,21 +10,18 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import java.util.List;
-
 @Controller
 @RequestMapping("/posts")
-public record PostController(PostRepo postRepo) {
+public class PostController {
 
-//    @GetMapping("/")
-//    String index(Model model) {
-//        model.addAttribute("title", "Spring J Teblog App");
-//        model.addAttribute("username", "Jonald D Prompt ");
-//        return "pages/index";
-//    }
+    private final PostRepo postRepo;
+
+    public PostController(PostRepo postRepo) {
+        this.postRepo = postRepo;
+    }
 
     @GetMapping
-    public String listpages(Model model) {
+    public String list(Model model) {
         model.addAttribute("posts", postRepo.findAll());
         return "pages/index";
     }
@@ -32,6 +29,9 @@ public record PostController(PostRepo postRepo) {
     @GetMapping("/new")
     public String newPost(Model model) {
         model.addAttribute("post", new Post());
+        model.addAttribute("pageTitle", "New Post");
+        model.addAttribute("action", "/posts");
+        model.addAttribute("submitButtonText", "Create");
         return "pages/postNew";
     }
 
@@ -43,28 +43,34 @@ public record PostController(PostRepo postRepo) {
 
     @GetMapping("/{id}")
     public String showPost(@PathVariable Long id, Model model) {
-        Post post = postRepo.findById(id).orElseThrow(() -> new IllegalArgumentException("Invalid post Id:" + id));
-        model.addAttribute("post", post);
-        return "post";
+        model.addAttribute("post", findOrThrow(id));
+        return "pages/post";
     }
 
     @GetMapping("/{id}/edit")
     public String editPost(@PathVariable Long id, Model model) {
-        Post post = postRepo.findById(id).orElseThrow(() -> new IllegalArgumentException("Invalid post Id:" + id));
-        model.addAttribute("post", post);
-        return "pages/edit";
+        model.addAttribute("post", findOrThrow(id));
+        model.addAttribute("pageTitle", "Edit Post");
+        model.addAttribute("action", "/posts/" + id);
+        model.addAttribute("submitButtonText", "Update");
+        return "pages/postNew";
     }
 
     @PostMapping("/{id}")
     public String updatePost(@PathVariable Long id, @ModelAttribute Post post) {
+        post.setId(id);
         postRepo.save(post);
         return "redirect:/posts";
     }
 
     @PostMapping("/{id}/delete")
     public String deletePost(@PathVariable Long id) {
-        Post post = postRepo.findById(id).orElseThrow(() -> new IllegalArgumentException("Invalid post Id:" + id));
-        postRepo.delete(post);
+        postRepo.delete(findOrThrow(id));
         return "redirect:/posts";
+    }
+
+    private Post findOrThrow(Long id) {
+        return postRepo.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid post id: " + id));
     }
 }

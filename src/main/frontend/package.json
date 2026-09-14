@@ -1,15 +1,16 @@
 {
   "name": "frontend",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "private": true,
+  "description": "Tailwind build for the JTE templates",
   "scripts": {
-    "build": "tailwindcss -i ./styles.css -o ../resources/static/css/main.css",
+    "build": "tailwindcss -i ./styles.css -o ../resources/static/css/main.css --minify",
     "watch": "tailwindcss --watch -i ./styles.css -o ../resources/static/css/main.css"
   },
   "author": "Ilkin Mehdiyev",
   "license": "ISC",
   "devDependencies": {
-    "tailwindcss": "^3.4.13"
+    "@tailwindcss/cli": "^4.3.3",
+    "tailwindcss": "^4.3.3"
   }
 }
